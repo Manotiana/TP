@@ -1,0 +1,5 @@
+include ':newsletter'
+include ':fragments'
+include ':calculette'
+include ':app'
+rootProject.name = "tp"
