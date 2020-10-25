@@ -1,14 +1,20 @@
 package com.tp.newsletter.fragments
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.Toast
+import androidx.core.view.children
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.tp.newsletter.MainActivity
 import com.tp.newsletter.R
 import com.tp.newsletter.adapters.CategoryAdapter
+import com.tp.newsletter.changeFragment
 import com.tp.newsletter.model.Category
 
 // TODO: Rename parameter arguments, choose names that match
@@ -38,25 +44,46 @@ class CategoriesFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
 
         val articles = listOf<Category>(
-            Category("politique","https://picsum.photos/500/300"),
-            Category("economie","https://picsum.photos/500/300"),
-            Category("pandemie","https://picsum.photos/500/300"),
-            Category("sante","https://picsum.photos/500/300"),
-            Category("sante","https://picsum.photos/500/300"),
-            Category("sante","https://picsum.photos/500/300"),
-            Category("sante","https://picsum.photos/500/300"),
-            Category("sante","https://picsum.photos/500/300"),
-            Category("sante","https://picsum.photos/500/300"),
-            Category("sante","https://picsum.photos/500/300")
+            Category("politics","https://picsum.photos/500/300"),
+            Category("business","https://picsum.photos/500/300"),
+            Category("education","https://picsum.photos/500/300"),
+            Category("pandemic","https://picsum.photos/500/300"),
+            Category("sciences","https://picsum.photos/500/300"),
+            Category("ecology","https://picsum.photos/500/300")
 
         )
 
-        val adapterRecycler = CategoryAdapter(articles)
+        val adapterRecycler = CategoryAdapter(articles){
+            partItemClicked(it)
+        }
 
         //recyclerView.layoutManager = LinearLayoutManager(view.context)
-        recyclerView.layoutManager = GridLayoutManager(view.context, 2)
+        recyclerView.layoutManager = GridLayoutManager(view.context, 1)
 
         recyclerView.adapter = adapterRecycler
+
+
+    }
+    private fun partItemClicked(category: Category ) {
+      // context?.toast(category.name)
+        Toast.makeText(
+            context,
+            category.name,
+            Toast.LENGTH_LONG
+        ).show()
+        (activity as? MainActivity)?.changeFragment(
+            ArticleFragment.newInstance(
+                category.name
+            )
+        )
+
     }
 
+}
+fun Context.toast(display:String){
+    Toast.makeText(
+        this,
+        display,
+        Toast.LENGTH_LONG
+    ).show()
 }

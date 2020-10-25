@@ -10,11 +10,12 @@ import com.bumptech.glide.Glide
 import com.tp.newsletter.R
 import com.tp.newsletter.model.Category
 
-class CategoryAdapter(private val dataset: List<Category>) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
+class CategoryAdapter(private val dataset: List<Category>, val clickListener : (Category) -> Unit) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
+
     class ViewHolder(val root: View) : RecyclerView.ViewHolder(root) {
-        fun bind(item: Category) {
+        fun bind(item: Category, clickListener: (Category) -> Unit) {
             val txtTitle = root.findViewById<TextView>(R.id.category_name)
-            val imageView:ImageView = root.findViewById<ImageView>(R.id.category_image)
+            val imageView = root.findViewById<ImageView>(R.id.category_image)
             //val txtDesc = root.findViewById<TextView>(R.id.article_description)
             txtTitle.text = item.name
             //txtDesc.text = item.description
@@ -24,6 +25,11 @@ class CategoryAdapter(private val dataset: List<Category>) : RecyclerView.Adapte
                 .fitCenter()
                 .placeholder(R.drawable.placeholder)
                 .into(imageView);
+
+            root.setOnClickListener {
+                clickListener(item)
+            }
+
         }
     }
 
@@ -34,7 +40,7 @@ class CategoryAdapter(private val dataset: List<Category>) : RecyclerView.Adapte
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(dataset[position])
+        holder.bind(dataset[position], clickListener)
     }
 
     override fun getItemCount(): Int = dataset.size
