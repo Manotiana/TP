@@ -3,6 +3,7 @@ package com.tp.newsletter.adapters
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.BackgroundColorSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,7 @@ import com.tp.newsletter.utils.PaddingBackgroundColorSpan
 import java.lang.Long.parseLong
 
 
-class ArticleAdapter (private val dataset: List<Article>) : RecyclerView.Adapter<ArticleAdapter.ViewHolder>() {
+class   ArticleAdapter ( val dataset: MutableList<Article>) : RecyclerView.Adapter<ArticleAdapter.ViewHolder>() {
 
     class ViewHolder(val root: View) : RecyclerView.ViewHolder(root) {
         fun bind(item: Article) {
@@ -58,7 +59,12 @@ class ArticleAdapter (private val dataset: List<Article>) : RecyclerView.Adapter
     override fun getItemCount(): Int = dataset.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+       Log.i("Fragment Dataset size","${dataset.size}")
        holder.bind(dataset[position])
+    }
+     fun addNextResults(itemsNew: List<Article>){
+        dataset.addAll(itemsNew)
+        notifyDataSetChanged()
     }
 
 }

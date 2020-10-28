@@ -2,6 +2,7 @@ package com.tp.newsletter.repository
 
 import com.google.gson.GsonBuilder
 import com.tp.newsletter.model.Article
+import com.tp.newsletter.model.ArticleResponse
 import com.tp.newsletter.services.ArticleService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -10,7 +11,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 class ArticleRepository(val articleType: String) {
     private val service: ArticleService
     private val url = "https://newsapi.org/v2/"
-    private var type = "sports"
     init {
         val gson = GsonBuilder()
                 .setDateFormat("yyyy-MM-dd")
@@ -27,5 +27,9 @@ class ArticleRepository(val articleType: String) {
     }
     //get articles
 
-    suspend fun getArticles() = service.listArticles(articleType).articles
+    suspend fun getArticles(): Pair<Int?, List<Article>?> {
+        val articleResponse: ArticleResponse  = service.listArticles(articleType)
+        return Pair(articleResponse.totalResults, articleResponse.articles)
+    }
+    suspend fun getNextArticles(page : Int) = service.listArticles(articleType, page).articles
 }

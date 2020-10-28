@@ -1,23 +1,23 @@
 package com.tp.newsletter.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tp.newsletter.R
 import com.tp.newsletter.adapters.ArticleAdapter
-import com.tp.newsletter.adapters.CategoryAdapter
 import com.tp.newsletter.model.Article
 import com.tp.newsletter.repository.ArticleRepository
+import com.tp.newsletter.utils.EndlessRecyclerViewScrollListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.w3c.dom.Text
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,6 +32,10 @@ private const val ARG_PARAM2 = "param2"
 class ArticleFragment : Fragment() {
     lateinit var category : String
     lateinit var repository : ArticleRepository
+     var totalCount : Int?= 0
+    var pageCounter = 2
+    var loading = true
+    var pageLimit = 0
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,8 +48,6 @@ class ArticleFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launch{
             getData(view);
-
-
         }
     }
 
@@ -76,7 +78,10 @@ class ArticleFragment : Fragment() {
         withContext(Dispatchers.IO){
             //val result = repository.list()
             val result = repository.getArticles()
-            bindData(result, view)
+            totalCount = result.first
+            pageLimit = totalCount?.div(20) ?: 100
+            Log.d("page limit to display", pageLimit.toString())
+            bindData(result.second, view)
         }
     }
     private suspend fun bindData(result : List<Article>?, view: View){
@@ -86,9 +91,66 @@ class ArticleFragment : Fragment() {
             textView?.text = result?.get(0)?.description*/
             val recyclerView: RecyclerView = view.findViewById(R.id.article_recycler_view)
             val listOArticles = result ?: emptyList()
-            val adapterRecycler = ArticleAdapter(listOArticles)
-            recyclerView.layoutManager = GridLayoutManager(view.context, 1)
+            val adapterRecycler = ArticleAdapter(listOArticles.toMutableList())
+            val gridLayoutManager = GridLayoutManager(view.context, 1)
+            recyclerView.layoutManager = gridLayoutManager
             recyclerView.adapter = adapterRecycler
+            val scrollListener = object : EndlessRecyclerViewScrollListener(gridLayoutManager, pageLimit) {
+
+                override fun onLoadMore(page: Int, totalItemsCount: Int, view: RecyclerView) {
+                    // Triggered only when new data needs to be appended to the list
+                    // Add whatever code is needed to append new items to the bottom of the list
+                    lifecycleScope.launch(Dispatchers.IO) {
+
+                        //if(pageCounter < pageLimit){
+                            loadNextDataFromApi(page, view)
+                            Log.d("onloadmore","onloadmore called")
+                            //withContext(Dispatchers.Main){}
+                            //pageCounter ++
+                        //}
+
+
+
+                    }
+
+                }
+            }
+            recyclerView.addOnScrollListener(scrollListener)
+
+            /*recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy > 0) { //check for scroll down
+                        val visibleItemCount = gridLayoutManager.childCount
+                        val pastVisiblesItems = gridLayoutManager.findFirstCompletelyVisibleItemPosition()
+                        val totalItemCount = recyclerView.adapter?.itemCount ?: 20
+
+                        if (loading) {
+                            if (visibleItemCount + pastVisiblesItems >= totalItemCount) {
+                                loading = false
+                                Log.v("...", "Last Item Wow !")
+                                launch (Dispatchers.IO){
+                                    loadNextDataFromApi(2, recyclerView)
+                                    loading = true
+                                }
+
+                            }
+                        }
+                    }
+                }
+            })*/
+        }
+    }
+    private suspend fun loadNextDataFromApi( page: Int, view: RecyclerView){
+        withContext(Dispatchers.IO){
+            val nextResult = repository.getNextArticles(page) ?: emptyList()
+
+            withContext(Dispatchers.Main){
+                Log.d("LoadNextFromApi","${page.toString()} + ${nextResult.size}")
+                val recyclerView: RecyclerView = view.findViewById(R.id.article_recycler_view)
+                val adapter : ArticleAdapter = recyclerView.adapter as ArticleAdapter
+                adapter.addNextResults(nextResult)
+            }
+
 
         }
     }
