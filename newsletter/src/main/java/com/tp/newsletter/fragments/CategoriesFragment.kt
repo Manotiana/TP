@@ -44,12 +44,12 @@ class CategoriesFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.recycler_view)
 
         val articles = listOf<Category>(
-                Category("politics","https://picsum.photos/500/300"),
-                Category("business","https://picsum.photos/500/300"),
-                Category("education","https://picsum.photos/500/300"),
-                Category("pandemic","https://picsum.photos/500/300"),
-                Category("sciences","https://picsum.photos/500/300"),
-                Category("ecology","https://picsum.photos/500/300")
+                Category("politics","https://i.postimg.cc/Kc0bJ4Ch/politique2.jpg "),
+                Category("business","https://i.postimg.cc/3JrXQfLD/business.jpg"),
+                Category("education","https://i.postimg.cc/MZ3TXs6B/education.jpg"),
+                Category("pandemic","https://i.postimg.cc/mk1GPyj3/pandemie.jpg"),
+                Category("sciences","https://i.postimg.cc/9Xy2HJ4V/sciences.jpg"),
+                Category("ecology","https://i.postimg.cc/J7Nf20gz/ecoligie.jpg")
         )
 
         val adapterRecycler = CategoryAdapter(articles){
